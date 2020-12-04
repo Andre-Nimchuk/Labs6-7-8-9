@@ -108,3 +108,88 @@ GO
 SELECT dbo.АвтоСтр4 (1) AS 'АвтоСтрока'
 
 EXEC ПрокатАвто @Модель='inserted',  @Рік_випуску=2007, @Колір ='Колір', @Тип_авто = 3;
+
+11 лаба
+BEGIN TRANSACTION;
+INSERT INTO [Контракт] 
+VALUES (1,2,1, '12.02.2020', '10.03.2020');
+INSERT INTO [Контракт] 
+VALUES (2,3,1, '10.03.2020', '12.02.2020');
+INSERT INTO [Контракт] 
+VALUES (3,4,1, '12.10.2020', '10.03.2020');
+COMMIT;
+
+USE [LB_1]
+GO
+
+
+BEGIN TRANSACTION;
+INSERT INTO [Контракт] 
+VALUES (1,1,1, '12.02.2020', '10.03.2020');
+INSERT INTO [Контракт] 
+VALUES (2,2,2, '10.03.2020', '12.02.2020');
+INSERT INTO [Контракт] 
+VALUES (3,3,3, '12.10.2020', '10.03.2020');
+COMMIT;
+
+12 лаба 
+
+USE [LB_1]
+GO
+
+CREATE
+TRIGGER Delete_Атво1 ON [Авто] 
+INSTEAD OF DELETE 
+AS
+BEGIN
+DECLARE @Old INT
+SELECT @Old = [Код_авто] FROM deleted
+UPDATE [Авто] SET Тип_авто=1 WHERE Тип_авто=@Old
+END
+
+DELETE FROM [Авто] WHERE [Код_авто] = 5 ;
+SELECT * FROM [Авто];
+
+ALTER TABLE [Авто]
+ADD Остання_оренда DATE NULL;
+
+select [Код_авто], Тип_авто, [Колір], Модель, Рік_випуску, Максимальна_швидкість,  Остання_оренда from [Авто]
+
+CREATE TRIGGER 
+ост_фікс2 ON [Договір_про_оренду] AFTER INSERT
+AS
+BEGIN
+UPDATE [Авто] SET [Авто].Остання_оренда=CONVERT(date, inserted.[Дата_заключення])
+FROM inserted
+WHERE [Авто].[Код_авто] = inserted.[Код_авто]
+END
+INSERT INTO [Авто] 
+VALUES
+(10, 3, 'Black', 'Aston', '1978', '1580','2021-10-05')
+
+13 лаба 
+
+EXEC sp_helpindex 'Авто'
+GO
+
+EXEC sp_helpindex 'Салон'
+
+CREATE INDEX autINDX3 ON Авто ([Код_авто]); 
+EXEC sp_helpindex 'Авто'
+GO
+
+CREATE UNIQUE INDEX CалонINDX ON Салон ([Код_салону], [Назва_салону]); 
+EXEC sp_helpindex 'Салон'
+GO
+
+SET SHOWPLAN_ALL ON;  
+GO  
+select [Тип_авто],[Модель] from [Авто]
+where [Максимальна_швидкість]>'200';
+GO
+select [Код_салону], [Назва_салону] from [Салон]
+where [Місто_розташування]='Львів';
+GO
+SET SHOWPLAN_ALL OFF;  
+GO  
+
